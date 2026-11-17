@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messmer the Impaler • Shadow of the Erdtree</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Cinzel Decorative, Cinzel, Cormorant Garamond, Space Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,600&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+    <style>
+            :root {
+            
+            --custom-cursor: url('https://i.ibb.co/3pDWx0X/cursor1.png');
+            
+            
+            --bg-pattern-url: url('https://i.ibb.co/1Y9hQkRh/stardust.png');
+            --bg-base-color: #0d0b0b;
+
+            
+            --crimson-flame: #8f1616;
+            --crimson-bright: #c42121;
+            --pale-gold: #c7b28e;
+            -- tarnished-bronze: #75654e;
+        }
+
+        html, body, *, a, button {
+            cursor: var(--custom-cursor), auto !important;
+        }
+
+        .font-cinzel-dec { font-family: 'Cinzel Decorative', serif; }
+        .font-cinzel { font-family: 'Cinzel', serif; }
+        .font-garamond { font-family: 'Cormorant Garamond', serif; }
+        .font-mono-tech { font-family: 'Space Mono', monospace; }
+
+        /* FILTRO GRUNGE DE PUNTOS (DOBLE TRAMA DE CENIZA Y HOLLÍN) */
+        .grunge-dots {
+            background-color: transparent;
+            background-image: 
+                radial-gradient(rgba(199, 178, 142, 0.02) 1px, transparent 1px),
+                radial-gradient(rgba(143, 22, 22, 0.02) 1px, transparent 1px);
+            background-size: 22px 22px;
+            background-position: 0 0, 11px 11px;
+        }
+        .grunge-dots-fine {
+            background-color: transparent;
+            background-image: radial-gradient(rgba(0, 0, 0, 0.30) 1px, transparent 1px);
+            background-size: 4px 4px;
+        }
+
+        
+        @keyframes renderSlideIn {
+            0% {
+                opacity: 0;
+                transform: translateX(130px) scale(1.015);
+                filter: blur(5px) contrast(118%) saturate(105%);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+                filter: blur(0px) contrast(118%) saturate(105%);
+            }
+        }
+        .render-entrance {
+            animation: renderSlideIn 1.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* testura1234 */
+        .shadow-keep-stone {
+            background-image: 
+                radial-gradient(ellipse at 78% 45%, rgba(143, 22, 22, 0.24) 0%, rgba(13, 11, 11, 0) 62%),
+                radial-gradient(circle at 20% 80%, rgba(117, 101, 78, 0.08) 0%, transparent 50%);
+        }
+
+        /* acabados de texto */
+        .messmer-forged-title {
+            background: linear-gradient(180deg, #ede0c9 0%, #c7b28e 48%, #856f50 85%, #5c1919 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 8px 25px rgba(0, 0, 0, 0.95));
+        }
+
+        /* barra invisibol */
+        .lore-scroll::-webkit-scrollbar {
+            width: 0px;
+        }
+        .lore-scroll::-webkit-scrollbar-track {
+            background: rgba(199, 178, 142, 0.05);
+        }
+        .lore-scroll::-webkit-scrollbar-thumb {
+            background: var(--crimson-flame);
+        }
+
+         
+        .no-drag {
+            user-select: none;
+            -webkit-user-drag: none;
+            pointer-events: none;
+        }
+
+         
+        .kiri-link {
+            color: var(--crimson-bright);
+            text-decoration: none;
+            border-bottom: 1px solid rgba(196, 33, 33, 0.4);
+            transition: all 0.35s ease;
+        }
+        .kiri-link:hover {
+            color: #ede0c9;
+            text-shadow: 0 0 8px #c42121, 0 0 20px #8f1616;
+            border-bottom-color: #ede0c9;
+        }
+
+        /* destellos */
+        @keyframes gracePulse {
+            0%, 100% { opacity: 0.55; transform: scale(0.95); }
+            50% { opacity: 1; transform: scale(1.15); }
+        }
+        .grace-spark {
+            animation: gracePulse 3.5s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body style="background-color: var(--bg-base-color);" class="text-[#c7b28e] w-screen h-screen overflow-hidden select-none relative flex flex-col justify-between">
+
+    <!-- capa one -->
+    <div class="fixed inset-0 z-0 shadow-keep-stone">
+        
+        <div class="absolute inset-0 opacity-25 mix-blend-luminosity pointer-events-none" style="background-image: var(--bg-pattern-url); background-repeat: repeat;"></div>
+       
+        <div class="absolute inset-0 shadow-[inset_0_0_170px_rgba(0,0,0,0.98)] pointer-events-none"></div>
+    </div>
+
+    <!-- canvas de fuegote-->
+    <canvas id="emberCanvas" class="fixed inset-0 z-10 pointer-events-none"></canvas>
+
+    <!-- render de estrella-->
+
+    <div class="fixed top-1/2 right-[2%] md:right-[6%] -translate-y-1/2 z-[8] w-[85vw] md:w-[52vw] max-w-[1000px] aspect-square flex items-center justify-center pointer-events-none">
+        <img id="backDecorPng"
+             src="https://i.ibb.co/FbDjBysv/star1.png"
+             alt="Fondo Decorativo Detrás del Render"
+             class="w-full h-full object-contain opacity-85 no-drag"
+             oncontextmenu="return false;"
+             ondragstart="return false;">
+    </div>
+
+    <!-- detalles -->
+    <aside class="hidden md:flex fixed left-9 top-1/2 -translate-y-1/2 z-30 flex-col items-center justify-between h-80 pointer-events-auto">
+      
+        <svg width="14" height="28" viewBox="0 0 14 28" class="text-[#c7b28e]/80 fill-current">
+            <path d="M7 0 L11 16 L7 13 L3 16 Z M6.5 13 L7.5 13 L7.5 28 L6.5 28 Z"/>
+        </svg>
+
+         
+        <div class="relative flex-1 w-[1px] bg-gradient-to-b from-[#c7b28e]/60 via-[#8f1616]/70 to-[#c7b28e]/40 my-1 flex flex-col items-center justify-center space-y-5">
+            <button onclick="setLoreSection('chronicle')" title="Chronicle of the Crusade" class="w-2.5 h-2.5 rotate-45 border border-[#c7b28e] bg-[#8f1616] hover:scale-125 transition-transform"></button>
+            <span class="w-1.5 h-1.5 rotate-45 bg-[#c7b28e]/40 pointer-events-none"></span>
+            <span class="w-1 h-1 rounded-full bg-[#c7b28e]/25 pointer-events-none"></span>
+        </div>
+
+        <!-- Sello del Ojo Dorado de Marika (SVG artesanal) -->
+        <div class="flex flex-col items-center space-y-2 mt-1">
+            <svg width="26" height="16" viewBox="0 0 26 16" fill="none" class="opacity-85">
+                <path d="M1 8C5 2.5 21 2.5 25 8C21 13.5 5 13.5 1 8Z" stroke="#c7b28e" stroke-width="1"/>
+                <circle cx="13" cy="8" r="3.5" stroke="#8f1616" stroke-width="1.2"/>
+                <path d="M13 3V13M9 8H17" stroke="#c7b28e" stroke-width="0.8"/>
+            </svg>
+            <span class="font-cinzel text-[7px] tracking-[0.28em] text-[#75654e] text-center leading-tight uppercase">
+                SCADU<br>ALTUS
+            </span>
+        </div>
+    </aside>
+
+    <!-- render de messmer -->
+    <div class="fixed top-0 right-0 h-full w-full md:w-[54vw] z-10 flex items-end justify-end pointer-events-none overflow-hidden">
+        
+        <img id="messmerRender"
+             src="https://i.ibb.co/kg86WFdf/messm6.png"
+             alt="Messmer the Impaler Render"
+             class="render-entrance h-[92vh] md:h-[96vh] w-auto max-w-none object-contain object-right-bottom drop-shadow-[-24px_0_50px_rgba(0,0,0,0.98)] no-drag"
+             oncontextmenu="return false;"
+             ondragstart="return false;">
+        <div class="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#0d0b0b] via-[#0d0b0b]/75 to-transparent"></div>
+    </div>
+
+   <!-- filtro tipo grunge -->
+    <div class="fixed inset-0 z-40 grunge-dots pointer-events-none"></div>
+    <div class="fixed inset-0 z-40 grunge-dots-fine pointer-events-none opacity-80"></div>
+
+    <!-- marco -->
+    <div class="fixed inset-3 md:inset-5 border border-[#c7b28e]/20 z-20 pointer-events-none">
+        <div class="fixed inset-4 md:inset-6 border border-[#8f1616]/25 pointer-events-none"></div>
+        <!-- remates de esquinas -->
+        <svg class="absolute -top-1 -left-1 w-4 h-4 text-[#c7b28e]" viewBox="0 0 16 16" fill="currentColor"><path d="M0 0 H16 L12 2 H2 V12 L0 16 Z"/></svg>
+        <svg class="absolute -top-1 -right-1 w-4 h-4 text-[#c7b28e]" viewBox="0 0 16 16" fill="currentColor"><path d="M16 0 H0 L4 2 H14 V12 L16 16 Z"/></svg>
+        <svg class="absolute -bottom-1 -left-1 w-4 h-4 text-[#c7b28e]" viewBox="0 0 16 16" fill="currentColor"><path d="M0 16 H16 L12 14 H2 V4 L0 0 Z"/></svg>
+        <svg class="absolute -bottom-1 -right-1 w-4 h-4 text-[#c7b28e]" viewBox="0 0 16 16" fill="currentColor"><path d="M16 16 H0 L4 14 H14 V4 L16 0 Z"/></svg>
+    </div>
+
+    <!-- barra superior -->
+    <header class="relative z-30 w-full px-8 md:px-14 pt-6 md:pt-8 flex items-center justify-between">
+        <!-- texto izquierdo -->
+        <div class="flex flex-col space-y-0.5">
+            <span class="font-calibri text-[10px] md:text-[9px] tracking-[0.32em] text-[#c7b28e] uppercase font-semibold">
+                NEIGE'S SPACE // 1533252890
+            </span>
+            <span class="font-calibri  text-xs md:text-[9px] tracking-[0.20em] text-[#8f1616] uppercase">
+                My curse shall outlive your kingdom
+            </span>
+        </div>
+
+        <!-- menu indirecto -->
+        <nav class="hidden md:flex items-center space-x-6 py-1 px-6 border-y border-[#c7b28e]/20">
+            <button onclick="setLoreSection('chronicle')" class="font-cinzel text-[10px] tracking-[0.28em] text-[#ede0c9] hover:text-[#c42121] transition-colors uppercase flex items-center gap-2">
+                <span class="text-[#8f1616] text-[8px]">◆</span> CHRONICLE
+            </button>
+            <span class="text-[#c7b28e]/25 text-[8px]">|</span>
+            <span class="font-cinzel text-[10px] tracking-[0.28em] text-[#c7b28e]/40 uppercase pointer-events-none">XV / XII / MMXXV</span>
+            <span class="text-[#c7b28e]/25 text-[8px]">|</span>
+            <span class="font-cinzel text-[10px] tracking-[0.28em] text-[#c7b28e]/40 uppercase pointer-events-none">CRUSADE</span>
+        </nav>
+
+        <!-- detalles derecho -->
+        <div class="flex items-center space-x-3">
+            <div class="hidden sm:flex flex-col text-right">
+                <span class="font-cinzel text-[9px] tracking-[0.26em] text-[#c7b28e]/80 uppercase">SHADOW KEEP</span>
+                <span class="font-garamond italic text-xs text-[#75654e]">Abandoned by Grace</span>
+            </div>
+            <!-- Glifo SVG de Gracia Oculta -->
+            <svg width="26" height="26" viewBox="0 0 26 26" class="text-[#c7b28e] grace-spark">
+                <path d="M13 1 L15 11 L25 13 L15 15 L13 25 L11 15 L1 13 L11 11 Z" fill="none" stroke="currentColor" stroke-width="0.9"/>
+                <circle cx="13" cy="13" r="2" fill="#8f1616"/>
+            </svg>
+        </div>
+    </header>
+
+    <!-- contenido weno-->
+    <main class="relative z-30 flex-1 flex flex-col justify-center px-8 md:px-24 lg:px-32 max-w-4xl pointer-events-none">
+        
+      
+        <div class="flex items-center space-x-3 mb-2">
+            <svg width="36" height="8" viewBox="0 0 36 8" class="text-[#8f1616] fill-current">
+                <path d="M0 3.5 H26 L24 1 L36 4 L24 7 L26 4.5 H0 Z"/>
+            </svg>
+            <span class="font-cinzel text-[9px] md:text-[10px] tracking-[0.36em] text-[#c7b28e]/80 uppercase">
+                A crown forged in suffering
+            </span>
+        </div>
+
+        <!-- texto principal jsjsj -->
+        <div class="relative">
+            <h1 class="font-cinzel-dec text-5xl sm:text-6xl md:text-7xl lg:text-[5.5rem] font-bold leading-[0.94] tracking-tight messmer-forged-title">
+                Blasphemers
+            </h1>
+            <div class="flex items-center pl-4 md:pl-14 -mt-1 md:-mt-2 space-x-4">
+                <span class="text-[#8f1616] text-sm">❖</span>
+                <h2 class="font-cinzel text-3xl sm:text-4xl md:text-5xl lg:text-[2.2rem] font-normal tracking-[0.16em] text-[#c7b28e] drop-shadow-[0_4px_18px_rgba(0,0,0,0.95)]">
+                    remembers every betrayal
+                </h2>
+            </div>
+        </div>
+
+       
+        <div class="mt-6 pointer-events-auto max-w-[350px] border-l-2 border-[#8f1616] pl-4 py-1 relative">
+            <span class="block font-cinzel text-[8px] tracking-[0.3em] text-[#75654e] uppercase mb-1.5">
+                ◆ PRETESSE DES ETOILES // NEIGE'S WIFE
+            </span>
+
+            <div id="loreTextContainer" class="lore-scroll max-h-16 md:max-h-20 overflow-y-auto pr-2 font-arial text-[10.5px] md:text-[10px] leading-snug text-[#c7b28e]/90 space-y-2 uppercase">
+                <p>
+                    Merci de marcher à mes côtés, de m’accompagner dans mes moments difficiles et de faire des jours les plus simples un magnifique rêve dont je ne voudrais jamais me réveiller.
+
+Tu es cette paix au milieu du chaos. Ce sont ces petites choses que tu fais chaque jour qui me font tomber amoureuse de toi encore et encore, jour après jour. Je remercie l’univers de m’avoir donné la chance de commencer à construire notre vie ensemble, de bâtir nos rêves petit à petit et de partager avec toi chaque instant, chaque projet et chaque espoir.
+
+Chaque moment où nous imaginons notre avenir ensemble est précieusement gravé dans mon cœur, mon amour. Tu n’imagines pas à quel point j’aime penser à tout ce que nous sommes en train de créer ensemble et à tous les souvenirs qui nous attendent encore.
+
+Je veux faire de toi l’homme le plus heureux du monde, chaque jour de ta vie. Je veux que tu n’oublies jamais à quel point je suis fière de toi, de tes efforts, de ta détermination et de tout ce que tu commences à accomplir jour après jour. J’admire l’homme que tu es et je te remercie profondément de me permettre de t’accompagner, de te soutenir et de faire partie de chaque moment de ta vie.
+                </p>
+                <p class="italic text-[#ede0c9]">
+                    Et si l’éternité existe, je veux la trouver à tes côtés.
+                </p>
+            </div>
+        </div>
+
+        
+        <div class="mt-3.5 pointer-events-auto inline-flex items-center space-x-2.5">
+            <span class="text-[#8f1616] text-[10px]">❖</span>
+            <span class="font-cinzel text-[10px] tracking-[0.26em] text-[#c7b28e]/85 uppercase">
+                Ensemble pour toujours <a href="https://xat.me/Kiri" target="_blank" rel="noopener noreferrer" class="kiri-link font-bold">Kiri</a>
+            </span>
+        </div>
+    </main>
+
+    <!-- ================= BARRA INFERIOR: REPRODUCTOR PEQUEÑO SIN BORDES ================= -->
+    <footer class="relative z-30 w-full px-8 md:px-24 lg:px-32 pb-6 md:pb-8 flex flex-col md:flex-row items-start md:items-end justify-between gap-4">
+        
+        <!-- REPRODUCTOR PEQUEÑO, TRANSPARENTE Y SIN BORDES -->
+        <div class="pointer-events-auto bg-transparent border-0 p-0 w-full max-w-[275px]">
+            <div class="flex items-center space-x-2.5">
+                <button onclick="prevTrack()" class="text-[#c7b28e]/70 hover:text-[#c42121] text-[10px] transition-colors">
+                    <i class="fa-solid fa-backward-step"></i>
+                </button>
+                <button onclick="togglePlay()" id="playPauseBtn" class="w-5 h-5 flex items-center justify-center text-[#ede0c9] hover:text-[#c42121] text-[11px] transition-colors">
+                    <i class="fa-solid fa-play"></i>
+                </button>
+                <button onclick="nextTrack()" class="text-[#c7b28e]/70 hover:text-[#c42121] text-[10px] transition-colors">
+                    <i class="fa-solid fa-forward-step"></i>
+                </button>
+
+                <span id="currentTrackTitle" class="font-cinzel text-[11px] tracking-[0.14em] text-[#ede0c9] truncate uppercase flex-1">
+                    I. Messmer, the Impaler
+                </span>
+                <span id="trackTime" class="font-mono-tech text-[9px] text-[#75654e]">00:00</span>
+            </div>
+
+            <!-- Barra de progreso ultrafina sin bordes -->
+            <div class="w-full h-[1.5px] bg-[#c7b28e]/20 mt-1.5 cursor-pointer relative" onclick="seekTrack(event)">
+                <div id="progressBar" class="h-full bg-[#8f1616] w-0 transition-all duration-150"></div>
+            </div>
+
+            <!-- Selector en números romanos (sin bordes) -->
+            <div id="playlistContainer" class="mt-1.5 flex items-center space-x-3.5"></div>
+        </div>
+
+        <!-- DETALLE INFERIOR DERECHO: FILIGRANA DE LANZA Y SELLO -->
+        <div class="hidden md:flex flex-col items-end space-y-1 pointer-events-none">
+            <div class="flex items-center space-x-2">
+                <div class="w-28 h-[1px] bg-gradient-to-r from-transparent to-[#8f1616]"></div>
+                <span class="text-[#8f1616] text-[10px]">◆</span>
+            </div>
+            <span class="font-arial text-[9px] tracking-[0.32em] text-[#c7b28e]/70 uppercase">
+                LAND OF SHADOW // ERDTREE'S SIN
+            </span>
+        </div>
+    </footer>
+
+    <audio id="audioEngine" preload="metadata"></audio>
+
+    <script>
+        /* ==========================================================================
+           1. LISTA DE CANCIONES DEL REPRODUCTOR (REEMPLAZA LOS LINKS .MP3 AQUÍ)
+           ========================================================================== */
+        const playlist = [
+            {
+                num: "I",
+                title: "I. Messmer, the Impaler",
+                src: "https://file.garden/Zd6Gl7mXyXjgTBxp/Messmer%2C%20The%20Impaler%20-%20Elden%20Ring%20Shadow%20Of%20The%20Erdtree%20OST%20Official%20Soundtrack%20Original%20Score.mp3"
+            },
+            {
+                num: "II",
+                title: "II. Base Serpent's Flame",
+                src: "https://file.garden/Zd6Gl7mXyXjgTBxp/Elden%20Ring%20OST%20-%20Messmer%20the%20Impaler%20(Base%20Serpent%20Messmer)%20%5BPhase%202%20Extended%5D.mp3"
+            },
+             
+        ];
+
+        let currentTrackIndex = 0;
+        let isPlaying = false;
+        const audio = document.getElementById('audioEngine');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const titleEl = document.getElementById('currentTrackTitle');
+        const timeEl = document.getElementById('trackTime');
+        const progressBar = document.getElementById('progressBar');
+        const playlistContainer = document.getElementById('playlistContainer');
+
+        function renderPlaylist() {
+            playlistContainer.innerHTML = playlist.map((track, idx) => `
+                <button onclick="selectTrack(${idx})"
+                        class="font-cinzel text-[10px] tracking-widest transition-colors ${idx === currentTrackIndex ? 'text-[#c42121] font-bold' : 'text-[#c7b28e]/45 hover:text-[#ede0c9]'}">
+                    ${track.num}
+                </button>
+            `).join('');
+        }
+
+        function loadTrack(index) {
+            currentTrackIndex = index;
+            const track = playlist[currentTrackIndex];
+            audio.src = track.src;
+            titleEl.textContent = track.title;
+            progressBar.style.width = '0%';
+            timeEl.textContent = '00:00';
+            renderPlaylist();
+        }
+
+        function selectTrack(index) {
+            loadTrack(index);
+            audio.play().then(() => {
+                isPlaying = true;
+                playPauseBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+            }).catch(() => {});
+        }
+
+        function togglePlay() {
+            if (!audio.src) loadTrack(currentTrackIndex);
+            if (isPlaying) {
+                audio.pause();
+                isPlaying = false;
+                playPauseBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
+            } else {
+                audio.play().then(() => {
+                    isPlaying = true;
+                    playPauseBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+                }).catch(() => {});
+            }
+        }
+
+        function prevTrack() {
+            const prev = (currentTrackIndex - 1 + playlist.length) % playlist.length;
+            selectTrack(prev);
+        }
+
+        function nextTrack() {
+            const next = (currentTrackIndex + 1) % playlist.length;
+            selectTrack(next);
+        }
+
+        function seekTrack(e) {
+            if (!audio.duration) return;
+            const rect = e.currentTarget.getBoundingClientRect();
+            const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+            audio.currentTime = ratio * audio.duration;
+        }
+
+        audio.addEventListener('timeupdate', () => {
+            if (!audio.duration) return;
+            const percent = (audio.currentTime / audio.duration) * 100;
+            progressBar.style.width = `${percent}%`;
+            const mins = Math.floor(audio.currentTime / 60).toString().padStart(2, '0');
+            const secs = Math.floor(audio.currentTime % 60).toString().padStart(2, '0');
+            timeEl.textContent = `${mins}:${secs}`;
+        });
+
+        audio.addEventListener('ended', nextTrack);
+        loadTrack(0);
+
+        /* AUTOPLAY AUTOMÁTICO AL ABRIR LA PÁGINA */
+        function startAutoPlay() {
+            audio.play().then(() => {
+                isPlaying = true;
+                playPauseBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+                document.removeEventListener('click', unlockAudio);
+                document.removeEventListener('keydown', unlockAudio);
+                document.removeEventListener('touchstart', unlockAudio);
+            }).catch(() => {});
+        }
+
+        function unlockAudio() {
+            if (!isPlaying) startAutoPlay();
+        }
+
+        window.addEventListener('load', startAutoPlay);
+        document.addEventListener('click', unlockAudio);
+        document.addEventListener('keydown', unlockAudio);
+        document.addEventListener('touchstart', unlockAudio);
+
+        /* ==========================================================================
+           2. ENFOQUE EN CHRONICLE
+           ========================================================================== */
+        const chronicleText = `
+            <p>In the forsaken depths of the Shadow Keep, veiled from the grace of the Erdtree, burns an unending dark-red flame that consumes both flesh and memory. Born cursed with the base serpent writhing beneath his seal, he waged an endless crusade without glory.</p>
+            <p class="italic text-[#ede0c9]">"Mother, wouldst thou truly lordship sanction, in one so bereft of light?"</p>
+        `;
+
+        function setLoreSection() {
+            const container = document.getElementById('loreTextContainer');
+            container.innerHTML = chronicleText;
+            container.scrollTop = 0;
+        }
+
+        /* ==========================================================================
+           3. CANVAS DE LA LLAMA DE MESSMER (SUTIL EN TODA LA PÁGINA)
+           ========================================================================== */
+        const canvas = document.getElementById('emberCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        function spawnMessmerFlame() {
+            const rand = Math.random();
+            // 'darkWisp' simula el humo/llama negra; 'crimsonTongue' volutas carmesí tenues; 'spark' brasas flotantes
+            const type = rand < 0.42 ? 'spark' : (rand < 0.72 ? 'crimsonTongue' : 'darkWisp');
+
+            return {
+                x: Math.random() * canvas.width,
+                y: canvas.height * (0.25 + Math.random() * 0.8),
+                size: type === 'spark' ? (Math.random() * 1.8 + 0.6) : (type === 'darkWisp' ? (Math.random() * 44 + 22) : (Math.random() * 34 + 16)),
+                vy: type === 'spark' ? -(Math.random() * 1.4 + 0.5) : -(Math.random() * 1.1 + 0.4),
+                vx: (Math.random() - 0.5) * 0.45,
+                life: 0,
+                maxLife: type === 'spark' ? (Math.random() * 130 + 80) : (Math.random() * 100 + 60),
+                type: type,
+                wobble: Math.random() * Math.PI * 2,
+                wobbleSpeed: Math.random() * 0.04 + 0.015,
+                stretchY: Math.random() * 0.8 + 1.4
+            };
+        }
+
+        const flameParticles = Array.from({ length: 120 }, spawnMessmerFlame);
+
+        function drawFire() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            flameParticles.forEach((p, idx) => {
+                p.life++;
+                const progress = p.life / p.maxLife;
+                const fade = Math.sin(progress * Math.PI);
+
+                if (p.type === 'darkWisp') {
+                    // Volutas sutiles de llama negra / ceniza
+                    ctx.globalCompositeOperation = 'source-over';
+                    const currentSize = p.size * (1 - progress * 0.4);
+                    const alpha = fade * 0.18;
+
+                    ctx.save();
+                    ctx.translate(p.x, p.y);
+                    ctx.rotate(Math.sin(p.wobble) * 0.25);
+                    ctx.scale(1 - progress * 0.25, p.stretchY);
+
+                    const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, currentSize);
+                    grad.addColorStop(0, `rgba(10, 4, 4, ${alpha})`);
+                    grad.addColorStop(0.55, `rgba(75, 10, 10, ${alpha * 0.55})`);
+                    grad.addColorStop(1, 'rgba(13, 11, 11, 0)');
+
+                    ctx.beginPath();
+                    ctx.arc(0, 0, currentSize, 0, Math.PI * 2);
+                    ctx.fillStyle = grad;
+                    ctx.fill();
+                    ctx.restore();
+                } else if (p.type === 'crimsonTongue') {
+                    // Lenguas carmesí difusas y sutiles
+                    ctx.globalCompositeOperation = 'lighter';
+                    const currentSize = p.size * (1 - progress * 0.55);
+                    const alpha = fade * 0.14;
+
+                    ctx.save();
+                    ctx.translate(p.x, p.y);
+                    ctx.rotate(Math.sin(p.wobble) * 0.22);
+                    ctx.scale(1 - progress * 0.3, p.stretchY);
+
+                    const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, currentSize);
+                    grad.addColorStop(0, `rgba(215, 145, 70, ${alpha * 0.75})`);
+                    grad.addColorStop(0.45, `rgba(165, 22, 22, ${alpha})`);
+                    grad.addColorStop(1, 'rgba(13, 11, 11, 0)');
+
+                    ctx.beginPath();
+                    ctx.arc(0, 0, currentSize, 0, Math.PI * 2);
+                    ctx.fillStyle = grad;
+                    ctx.fill();
+                    ctx.restore();
+                } else {
+                    // Brasas tenues flotando por toda la pantalla
+                    ctx.globalCompositeOperation = 'lighter';
+                    const alpha = fade * 0.55;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size * (1 - progress * 0.35), 0, Math.PI * 2);
+                    ctx.fillStyle = progress < 0.3
+                        ? `rgba(237, 200, 130, ${alpha})`
+                        : `rgba(196, 33, 33, ${alpha})`;
+                    ctx.fill();
+                }
+
+                // Deriva serpenteante suave a lo largo de toda la pantalla
+                p.wobble += p.wobbleSpeed;
+                p.y += p.vy;
+                p.x += p.vx + Math.sin(p.wobble) * 0.65;
+
+                if (p.life >= p.maxLife || p.y < -30) {
+                    flameParticles[idx] = spawnMessmerFlame();
+                }
+            });
+
+            ctx.globalCompositeOperation = 'source-over';
+            requestAnimationFrame(drawFire);
+        }
+        drawFire();
+
+        /* ==========================================================================
+           4. PROTECCIÓN DE IMÁGENES
+           ========================================================================== */
+        document.addEventListener('contextmenu', e => {
+            if (e.target.tagName === 'IMG') e.preventDefault();
+        });
+        document.addEventListener('dragstart', e => {
+            if (e.target.tagName === 'IMG') e.preventDefault();
+        });
+    </script>
+</body>
+</html>
